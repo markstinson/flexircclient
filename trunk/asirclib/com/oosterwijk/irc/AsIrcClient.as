@@ -68,9 +68,9 @@ package com.oosterwijk.irc
 	    private var _topics:HashMap             = new HashMap();
 	    private var _channels:HashMap           = new HashMap();
         private var _finger:String              = "You ought to be arrested for fingering a bot!";
-		private var _name:String                = "AsIrcBot";
-		private var _nick:String                = "AsIrcBot";
-		private var _login:String               = "AsIrcBot";
+		private var _name:String                = "AsIrcBotName";
+		private var _nick:String                = "AsIrcBotNick";
+		private var _login:String               = "AsIrcBotLogin";
 		private var _version:String             = "AsIrcBot " + VERSION + " Flex IRC Bot";
 
 
@@ -473,9 +473,9 @@ package com.oosterwijk.irc
 	        {
 	            // Somebody has been kicked from a channel.
 	            var recipient:String = lineTokens.next() as String;
+	            this.removeUser(recipient,target);
 	            if (recipient == this.getNick()) 
 	                this.removeChannel(target);
-	            this.removeUser(recipient,target);
 	            this.onKick(target, sourceNick, sourceLogin, sourceHostname, recipient, line.substring(line.indexOf(" :") + 2));
 	        }
 	        else if (command == "MODE") 
@@ -1965,7 +1965,7 @@ package com.oosterwijk.irc
 	     *
 	     * @param name The new name of the Bot.
 	     */
-	    protected final function setName(name:String):void 
+	    public final function setName(name:String):void 
 	    {
 	        _name = name;
 	    }
@@ -2270,7 +2270,7 @@ package com.oosterwijk.irc
 		    else
 		    	channels = _channels.keys();
 	        var user:User = new User("", nick);
-	        for (var i:int = 0;i <channels.length ; i++)
+	        for (var i:int = 0;i < channels.length ; i++)
 	        {
 		        var users:HashMap =  _channels.getValue(channels[i]) as HashMap;
 		        if (users.containsKey(nick))

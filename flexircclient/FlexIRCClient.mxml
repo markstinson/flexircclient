@@ -53,6 +53,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 					
 			}
 			
+			internal static  var YES_STRING:String = "Yes";
+			internal static  var NO_STRING:String = "No";
+			internal static function YesNoFormat(val:Boolean):String
+			{
+				if (val)
+					return FlexIRCClient.YES_STRING;
+				else
+					return FlexIRCClient.NO_STRING;
+			}
+			
 			internal var connectWindow:ConnectWindow = null; 
 			internal var joinChannelDialog:JoinChannelDialog = null; 
 			internal var privateMessageDialog:PrivateMessageDialog = null; 
@@ -96,14 +106,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 		    	if (sender == myNick)
 					channelViewStack.addChild(this.buildNewChannelUI(channel));
 				else
-					serverLog.text += sender + " joined channel: " + channel + ".\r\n";
+					addLogEntry(sender + " joined channel: " + channel + ".\n");
 					
 		    }
 		    
 		    protected function onConnect(event:IrcEvent):void 
 		    {
 		    	this.connected = true;
-				serverLog.text += "Connected\n";
+				addLogEntry("Connected.\n");
 				PopUpManager.removePopUp(connectWindow);
 				this.toggleConnectionMode(true);
 
@@ -113,7 +123,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 		    protected function onDisconnect(event:IrcEvent):void 
 		    {
 		    	this.connected = false;
-				serverLog.text += "Disconnected\n";
+				addLogEntry("Disconnected.\n");
 		    	var views:Array = channelViewStack.getChildren();
 		    	for (var i:int=views.length; i > 1 ; i--)
 		    	{
@@ -125,28 +135,38 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 		    protected function onServerResponse(event:IrcEvent):void 
 		    {
 		    	var serverEvent:ServerEvent = event as ServerEvent;
-		    	this.connected = false;
-				serverLog.text += serverEvent.code + " " + serverEvent.response + "\n";
+				addLogEntry(serverEvent.code + " " + serverEvent.response + "\n");
 		    }
 		    
 		    
 		    protected function onPrivateMessage(event:UserEvent):void 
 		    {
-		    	serverLog.text += event.sender + " says: " +event.message + "\n";
+				addLogEntry(event.sender + " says: " + event.message + "\n");
 		    }
 		    protected function onAction(sender:String, login:String,hostname:String,target:String, action:String):void 
 		    {
-		    	serverLog.text += sender + " says: " +action+ "\n";
+				addLogEntry(sender + " says: " +action+ "\n");
 		    }
 
 		    protected function onNotice(event:UserEvent):void 
 		    {
-		    	serverLog.text += event.sender + " notifies " + event.targetNick  + " of: "+event.message+ "\n";
+				addLogEntry(event.sender + " notifies " + event.targetNick  + " of: "+event.message+ "\n");
 		    }
 
 		    protected function onNickChange(event:UserEvent):void 
 		    {
-		    	serverLog.text += event.sender + " changed his nick to " + event.newNick + "\n";
+				addLogEntry(event.sender + " changed his nick to " + event.newNick + "\n");
+		    }
+		    
+		    protected function addLogEntry(entry:String):void
+		    {
+		    	serverLog.text += entry;
+		    	setTimeout(setScroll, 100);
+		    }
+		    
+		    private function setScroll():void
+		    {
+		    	serverLog.verticalScrollPosition = serverLog.maxVerticalScrollPosition;
 		    }
 		    
 		    /**
@@ -218,24 +238,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 		]]>
 	</mx:Script>
-	<mx:ViewStack x="10" y="66" id="channelViewStack" width="100%" height="80%" borderStyle="inset" cornerRadius="5" alpha="0.95">
-		<mx:Canvas label="Status" >
-			<mx:VBox height="100%" width="100%">
-				<mx:TextArea height="100%" width="100%" id="serverLog" editable="false" />
-				<mx:HBox width="100%">
+	<mx:ViewStack x="10" y="66" id="channelViewStack" width="80%" height="80%" borderStyle="none" cornerRadius="5" alpha="0.95">
+		<mx:Panel label="Status" styleName="logPanel" status="Connected: {FlexIRCClient.YesNoFormat(connected)}">
+			<mx:VBox height="100%" width="100%" styleName="logContainer">
+				<mx:TextArea height="100%" width="100%" id="serverLog" editable="false" styleName="logWindow" />
+				<mx:HBox width="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
 					<mx:TextInput width="100%" id="cmdLine"  enabled="{connected}" enter="sendCommand()"/>
 					<mx:Button label="Send" id="sendButton" enabled="{connected}" click="sendCommand()"/>
 				</mx:HBox>
 			</mx:VBox>
-		</mx:Canvas>
+		</mx:Panel>
 	</mx:ViewStack>
-	<mx:TabBar x="10" y="45" dataProvider="channelViewStack">
+	<mx:TabBar x="10" y="45" dataProvider="channelViewStack" styleName="tabBar">
 	</mx:TabBar>
 	<mx:ApplicationControlBar width="100%" left="0" top="0" id="ctrlbar">
 		<mx:Label text="Flex IRC Client" />
         <mx:MenuBar labelField="@label" itemClick="menuHandler(event);" dataProvider="{menuBarCollection}" />
 	</mx:ApplicationControlBar>
-	
-
-
+	<mx:Style source="FlexIRCClient.css"/>
 </mx:Application>

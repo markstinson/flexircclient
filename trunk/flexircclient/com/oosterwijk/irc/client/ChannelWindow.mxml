@@ -18,7 +18,15 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" horizontalAlign="center" layout="horizontal"  creationComplete="onCreationComplete()" xmlns:client="com.oosterwijk.irc.client.*">
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" 
+	height="100%" 
+	horizontalAlign="center" 
+	layout="horizontal"  
+	creationComplete="onCreationComplete()" 
+	xmlns:client="com.oosterwijk.irc.client.*"
+	styleName="logPanel"
+	>
 	<mx:Script>
 		<![CDATA[
 			import mx.managers.PopUpManager;
@@ -162,7 +170,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 			private function writeLineToChannelLog(line:String):void
 			{
 				this.channelLog.text = this.channelLog.text + line + "\n";
+		    	setTimeout(setScroll, 100);
 			}
+		    
+		    private function setScroll():void
+		    {
+		    	this.channelLog.verticalScrollPosition = this.channelLog.maxVerticalScrollPosition;
+		    }
+			
 
 			private function channelCheck(argChannel:String):Boolean
 			{
@@ -185,6 +200,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	   	    		}
 	   	    	}
 			}
+
+		    private function deactivateChannel():void
+		    {
+		    	this.channel = this.channel + "(inactive)";
+	   	    	this.status = "Inactive";
+		    }
 
 			/* START OF Channel Input Event Handlers */
 			private function sendChannelMessage(event:Event):void
@@ -213,6 +234,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             	else if (event.item.@method == "unlockTopic")
             	{
 					this._flexIrcClient.setMode(this._channel,"-t");
+            	}
+            	else if (event.item.@method == "leaveChannel")
+            	{
+					this._flexIrcClient.partChannel(this._channel);
             	}
             	else if (event.item.@method == "setChannelPassword" || event.item.@method == "removeChannelPassword")
             	{
@@ -359,8 +384,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	   	    	if (!channelCheck(event.channel)){return;}
 	   	    	this.writeLineToChannelLog("User Left: " + event.sender + "(" + event.login + ")");
 	   	    	removeUserFromGui(event.sender);
+	   	    	if (event.sender == this.flexIrcClient.getNick())
+	   	    		deactivateChannel();
 		    }
-	
+		    	
 		    protected    function onKick(event:ChannelEvent):void 
 	   	    {
 	   	    	if (!channelCheck(event.channel)){return;}
@@ -558,20 +585,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 		<node label="Lock Topic" method="lockTopic"/>
 		<node label="Unlock Topic" method="unlockTopic"/>
 		<node label="Manage Password" method="setChannelPassword"/>
+		<node label="Leave" method="leaveChannel"/>
     </mx:XMLList>
-	<mx:HDividedBox  width="100%" height="100%">
-		<mx:VBox width="80%" height="100%">
-			<mx:TextArea width="100%" height="100%" id="channelLog" editable="false"/>
+	<mx:HDividedBox  width="100%" height="100%" >
+		<mx:VBox width="80%" height="100%" styleName="logContainer">
+			<mx:TextArea width="100%" height="100%" id="channelLog" editable="false" styleName="logWindow"/>
 			<mx:HBox height="30" width="100%" verticalAlign="middle">
-				<mx:TextInput width="100%" height="25"  id="userChannelInput" enter="sendChannelMessage(event)" />
+				<mx:TextInput width="100%" id="userChannelInput" enter="sendChannelMessage(event)" />
 				<mx:Button bottom="2"  label="Send" paddingRight="5" id="userChannelInputSubmitButton" click="sendChannelMessage(event)" />
 			</mx:HBox>
 		</mx:VBox>
 		<mx:VBox width="20%" height="100%">
 	    	<mx:List id="channelUsersList" height="95%" width="100%" color="blue" dataProvider="{_usersCollection}" change="this._selectedUser=List(event.target).selectedItem.toString()" allowMultipleSelection="false"/>
-	        <mx:PopUpMenuButton id="userOperationsComboBox"  dataProvider="{_userOperations}" labelField="@label" itemClick="userMenuClickHandler(event);" height="5%"/>
-	    	<mx:PopUpMenuButton id="channelOperationsComboBox"  dataProvider="{_channelOperations}" labelField="@label" itemClick="channelMenuClickHandler(event);" height="5%"/>
+	        <mx:PopUpMenuButton id="userOperationsComboBox"  dataProvider="{_userOperations}" labelField="@label" itemClick="userMenuClickHandler(event);" height="5%" width="100%"/>
+	    	<mx:PopUpMenuButton id="channelOperationsComboBox"  dataProvider="{_channelOperations}" labelField="@label" itemClick="channelMenuClickHandler(event);" height="5%" width="100%"/>
 		</mx:VBox>
 	</mx:HDividedBox>
-	
 </mx:Panel>

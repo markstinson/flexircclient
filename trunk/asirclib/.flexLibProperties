@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flexLibProperties version="1">
+<includeClasses>
+<classEntry path="com.oosterwijk.irc.AsIrcClient"/>
+<classEntry path="com.oosterwijk.irc.FlexIrcClient"/>
+<classEntry path="com.oosterwijk.irc.ReplyConstants"/>
+<classEntry path="com.oosterwijk.irc.User"/>
+<classEntry path="com.oosterwijk.irc.error.IrcError"/>
+<classEntry path="com.oosterwijk.irc.error.NickAlreadyInUseError"/>
+<classEntry path="com.oosterwijk.irc.event.ChannelEvent"/>
+<classEntry path="com.oosterwijk.irc.event.IrcEvent"/>
+<classEntry path="com.oosterwijk.irc.event.ServerEvent"/>
+<classEntry path="com.oosterwijk.irc.event.UserEvent"/>
+<classEntry path="com.oosterwijk.util.ArrayIterator"/>
+<classEntry path="com.oosterwijk.util.Iterable"/>
+<classEntry path="com.oosterwijk.util.collection.HashMap"/>
+<classEntry path="com.oosterwijk.util.collection.IMap"/>
+</includeClasses>
+<includeResources/>
+<namespaceManifests/>
+</flexLibProperties>

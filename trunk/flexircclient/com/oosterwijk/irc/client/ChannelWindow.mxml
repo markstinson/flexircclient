@@ -393,6 +393,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	   	    	if (!channelCheck(event.channel)){return;}
 	   	    	this.writeLineToChannelLog("User: " + event.targetNick+ " was kicked by " + event.sender + " (" + event.message + ")");
 	   	    	removeUserFromGui(event.targetNick);
+	   	    	if (event.sender == this.flexIrcClient.getNick())
+	   	    		deactivateChannel();
 		    }
 	
 		    protected    function onTopic(event:ChannelEvent):void 

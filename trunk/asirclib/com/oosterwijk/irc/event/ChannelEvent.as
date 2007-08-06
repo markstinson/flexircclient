@@ -53,6 +53,10 @@ package com.oosterwijk.irc.event
 			super(type, bubbles, cancelable);
 		}
 		
+		
+		/**
+		 * the channel property stores the name of the irc channel to which this event pertains
+		 */
 		public function set channel(value:String):void
 		{
 			this._channel = value;
@@ -62,7 +66,9 @@ package com.oosterwijk.irc.event
 			return this._channel;
 		}
 
-		
+		/** 
+		 * the nick of the user who initiated this event.
+		 */
 		public function set sender(value:String):void
 		{
 			this._sender= value;
@@ -72,6 +78,9 @@ package com.oosterwijk.irc.event
 			return this._sender;
 		}
 
+		/**
+		 * the login to which this event pertains
+		 */
 		public function set login(value:String):void
 		{
 			this._login= value;
@@ -81,6 +90,9 @@ package com.oosterwijk.irc.event
 			return this._login;
 		}
 
+		/**
+		 * the hostname of the originator of this event.
+		 */
 		public function set hostname(value:String):void
 		{
 			this._hostname = value;
@@ -90,6 +102,9 @@ package com.oosterwijk.irc.event
 			return this._hostname;
 		}
 
+		/**
+		 * the message of this event. could be channel message, topic, or kick-message etc.
+		 */
 		public function set message(value:String):void
 		{
 			this._message= value;
@@ -99,6 +114,9 @@ package com.oosterwijk.irc.event
 			return this._message;
 		}
 
+		/**
+		 * the nick affected by the event. (the nick that is kicked for instances)
+		 */
 		public function set targetNick(value:String):void
 		{
 			this._target= value;
@@ -108,6 +126,9 @@ package com.oosterwijk.irc.event
 			return this._target;
 		}
 
+		/**
+		 * used by rename events to store the new nickname for a user
+		 */
 		public function set newNick(value:String):void
 		{
 			this._newNick= value;
@@ -116,7 +137,10 @@ package com.oosterwijk.irc.event
 		{
 			return this._newNick;
 		}
-
+				
+		/**
+		 * the mode of this event. used by the onUserMode event to store the new mode of a user.
+		 */
 		public function set mode(value:String):void
 		{
 			this._mode = value;
@@ -126,7 +150,9 @@ package com.oosterwijk.irc.event
 			return this._mode;
 		}
 
-
+		/**
+		 * the hostmask for a ban for instance
+		 */
 		public function set hostmask(value:String):void
 		{
 			this._hostmask = value;
@@ -136,6 +162,9 @@ package com.oosterwijk.irc.event
 			return this._hostmask;
 		}
 
+		/** 
+		 * the limit for channel-limit sets
+		 */
 		public function set limit(value:int):void
 		{
 			this._limit = value;
@@ -145,7 +174,9 @@ package com.oosterwijk.irc.event
 			return this._limit;
 		}
 
-
+		/**
+		 * the user count for a channel. used by channelInfo events
+		 */
 		public function set userCount(value:int):void
 		{
 			this._userCount = value;
@@ -155,7 +186,9 @@ package com.oosterwijk.irc.event
 			return this._userCount;
 		}
 
-
+		/**
+		 * the date of the event (for topic changes etc.)
+		 */
 		public function set date(value:Number):void
 		{
 			this._date = value;
@@ -165,7 +198,9 @@ package com.oosterwijk.irc.event
 			return this._date;
 		}
 
-
+		/**
+		 * if the topic has indeed changed this is true
+		 */
 		public function set changed(value:Boolean):void
 		{
 			this._changed = value;
@@ -175,7 +210,9 @@ package com.oosterwijk.irc.event
 			return this._changed;
 		}
 
-
+		/**
+		 * an array of user obects. used by userList event.
+		 */
 		public function set users(value:Array):void
 		{
 			if (value.length > 0 && !value[0] is User)

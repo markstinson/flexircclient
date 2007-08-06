@@ -46,6 +46,7 @@ package com.oosterwijk.irc
 		/* ================= STATIC VARIABLES ===============================*/
 		static public var CONNECT_EVENT:String = "connectEvent";
 		static public var DISCONNECT_EVENT:String = "disconnectEvent";
+		static public var NICK_ALREADY_IN_USE_EVENT:String = "nickAlreadyInUseEvent";
 		static public var SERVER_RESPONSE_EVENT:String = "serverResponseEvent";
 		static public var PRIVATE_MESSAGE_EVENT:String = "privateMessageEvent";
 		static public var ACTION_EVENT:String = "actionEvent";
@@ -152,6 +153,19 @@ package com.oosterwijk.irc
 	    	var event:ServerEvent = new ServerEvent(FlexIrcClient.DISCONNECT_EVENT);
 	    	this.dispatchEvent(event);
 	    }
+	    
+	    
+	    /**
+	    * Dispatched a new ServerEvent when called.
+	    * @see AsIrcClient#onNickNAmeAlreadyInUse()
+	    * @see #NICK_ALREADY_IN_USE_EVEN
+	    */
+	    protected override function onNickNameAlreadyInUse():void
+	    {
+	    	var event:ServerEvent = new ServerEvent(FlexIrcClient.NICK_ALREADY_IN_USE_EVENT);
+	    	this.dispatchEvent(event);	    	
+	    }
+	    
 
 		/**
 		 * Dispatches a new ServerEvent when called.

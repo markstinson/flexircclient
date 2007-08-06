@@ -85,6 +85,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 				flexIrcClient.addEventListener(FlexIrcClient.CONNECT_EVENT,this.onConnect);
 				flexIrcClient.addEventListener(FlexIrcClient.NOTICE_EVENT,this.onNotice);
 				flexIrcClient.addEventListener(FlexIrcClient.DISCONNECT_EVENT,this.onDisconnect);
+				flexIrcClient.addEventListener(FlexIrcClient.NICK_ALREADY_IN_USE_EVENT,this.onNickNameAlreadyInUse);
 				flexIrcClient.addEventListener(FlexIrcClient.PRIVATE_MESSAGE_EVENT,this.onPrivateMessage);
 				flexIrcClient.addEventListener(FlexIrcClient.NOTICE_EVENT,this.onNotice);
 				flexIrcClient.addEventListener(FlexIrcClient.NICK_CHANGE_EVENT,this.onNickChange);
@@ -114,7 +115,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 		    {
 		    	this.connected = true;
 				addLogEntry("Connected.\n");
-				PopUpManager.removePopUp(connectWindow);
+				//PopUpManager.removePopUp(connectWindow);
 				this.toggleConnectionMode(true);
 
 		    }
@@ -124,11 +125,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 		    {
 		    	this.connected = false;
 				addLogEntry("Disconnected.\n");
-		    	var views:Array = channelViewStack.getChildren();
-		    	for (var i:int=views.length; i > 1 ; i--)
-		    	{
-		    		channelViewStack.removeChildAt(i-1);
-		    	}
+				cleanupViewStack();
+		    	this.toggleConnectionMode(false);
+		    }
+		 
+
+		    protected function onNickNameAlreadyInUse(event:IrcEvent):void 
+		    {
+		    	this.connected = false;
+				addLogEntry("Nickname already in use. Disconnecting. . .\n");
+				cleanupViewStack();
 		    	this.toggleConnectionMode(false);
 		    }
 		    
@@ -157,6 +163,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 		    {
 				addLogEntry(event.sender + " changed his nick to " + event.newNick + "\n");
 		    }
+			/* END OF IRC Event Handlers */
 		    
 		    protected function addLogEntry(entry:String):void
 		    {
@@ -180,9 +187,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 				this.menubarXML[1].@enabled =  isConnected; 
 		    }
 		    
+		    /**
+		    * Remove all windows from viewstack except console.
+		    */
+		    private function cleanupViewStack():void
+		    {
+		    	var views:Array = channelViewStack.getChildren();
+		    	for (var i:int=views.length; i > 1 ; i--)
+		    	{
+		    		channelViewStack.removeChildAt(i-1);
+		    	}
+		    }
 		    
-
-			/* END OF IRC Event Handlers */
+		    
 
 
 			/* START OF Menubar */ 

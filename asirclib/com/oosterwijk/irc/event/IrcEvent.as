@@ -21,7 +21,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package com.oosterwijk.irc.event
 {
 	import flash.events.Event;
-
+	
+	/**
+	 * the IrcEvent is the base class for the various IRC-related events in this package.
+	 */
 	public class IrcEvent extends Event
 	{
 		public function IrcEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)

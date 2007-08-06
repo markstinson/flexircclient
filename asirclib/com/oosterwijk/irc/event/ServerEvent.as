@@ -37,7 +37,9 @@ package com.oosterwijk.irc.event
 			super(type, bubbles, cancelable);
 		}
 		
-		
+		/**
+		 * the code of the irc-server generated message.
+		 */
 		public function set code(value:int):void
 		{
 			this._code= value;
@@ -47,7 +49,7 @@ package com.oosterwijk.irc.event
 			return this._code;
 		}
 
-		
+
 		public function set response(value:String):void
 		{
 			this._response = value;

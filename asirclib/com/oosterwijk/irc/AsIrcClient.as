@@ -21,18 +21,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.oosterwijk.irc
 {
-	import flash.net.Socket;
-	import flash.events.ProgressEvent;
-	import mx.collections.ArrayCollection;
-	import flash.events.*;
-	import flash.utils.ByteArray;
-	import com.oosterwijk.util.*;
-	import mx.controls.Alert;
-	import flash.errors.IOError;
-	import com.oosterwijk.irc.error.NickAlreadyInUseError;
 	import com.oosterwijk.irc.error.IrcError;
-	import flash.utils.Dictionary;
 	import com.oosterwijk.util.collection.HashMap;
+	import com.oosterwijk.util.*;
+	import flash.errors.IOError;
+	import flash.events.*;
+	import flash.net.Socket;
+	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
+	import mx.collections.ArrayCollection;
+	import mx.controls.Alert;
 	import mx.rpc.events.AbstractEvent;
 	
 
@@ -94,8 +92,11 @@ package com.oosterwijk.irc
 	
 		/* ================= SOCKET EVENTS ===============================*/
 
-		/* Reads lines into buffer and calls handleLine */
-		internal function socketDataEvent(event:Event):void
+		/** 
+		 * The Data Event Handler is called when flex tells us there's data waiting to be read. 
+		 * Reads lines into buffer and calls handleLine 
+		 */
+		private function socketDataEvent(event:Event):void
 		{
 			if (this._status == AsIrcClient.STATUS_CONNECTING)
 			{
@@ -119,8 +120,10 @@ package com.oosterwijk.irc
 			}
 		}
 
-		/* Called when connection with server is established */
-		internal function connectEvent(event:Event):void
+		/**
+		 *  Called when connection with server is established. 
+		 */
+		private function connectEvent(event:Event):void
 		{
 	        this.log("*** Connected to server. ***");
 	        if (_password != null && !_password != "")
@@ -133,19 +136,28 @@ package com.oosterwijk.irc
 	
 		}
 
-		internal function closeEvent(event:Event):void
+		/**
+		 * called when socket is closed.
+		 */
+		private function closeEvent(event:Event):void
 		{
 			this.log("The connection was closed."  + event.toString());
 			onDisconnect();
 		}
 			
-		internal function ioErrorEvent(event:Event):void
+		/**
+		 * called when an IO error occurs. at that point we throw an IOError
+		 */
+		private function ioErrorEvent(event:Event):void
 		{
 			this.log("An IO error occurred"  + event.toString());
 			throw new IOError(event.toString());
 		}
-			
-		internal function securityErrorEvent(event:Event):void
+		
+		/**
+		 * called when a security error occurs. 
+		 */	
+		private function securityErrorEvent(event:Event):void
 		{
 			this.log("A Security error occurred"  + event.toString());
 			throw new SecurityError(event.toString());
@@ -155,7 +167,7 @@ package com.oosterwijk.irc
 		/* ================= SOCKET FUNCTIONS ===============================*/
 	    /**
 	     * Attempt to connect to the specified IRC server.
-	     * @throws IOError If already connected. 
+	     * @throws IOError if already connected. 
 	     * @param host The hostname of the server to connect to.
 	     * @param port The port to connect to. Defaults to 6667.
 	     * @param password The password with which to connect. Defaults to null (no password).
@@ -188,10 +200,9 @@ package com.oosterwijk.irc
 		}
 
 			    
-	
 	    /**
 	     * Reconnects to the IRC server that we were previously connected to.
-	     * The appropriate port number and password will be used.
+	     * The same port number and password will be used.
 	     * 
 	     * @throws IrcError This method will throw an IrcError if we have never connected to an IRC server previously.
 	     */
@@ -206,8 +217,7 @@ package com.oosterwijk.irc
 	    /**
 	     * This method disconnects from the server cleanly by calling the
 	     * quitServer() method.  Providing the Irc client was connected to an
-	     * IRC server, the onDisconnect() will be called as soon as the
-	     * disconnection is made by the server.
+	     * IRC server.
 	     */
 	    public final function  disconnect():void 
 	     {
@@ -226,7 +236,7 @@ package com.oosterwijk.irc
 		 * 
 		 * @param line The line that will be sent to the server.
 		 */
-		public function sendRawLine(line:String):void
+		protected function sendRawLine(line:String):void
 		{
 			if (isConnected() == false)
 				return;
@@ -236,13 +246,14 @@ package com.oosterwijk.irc
 			_socket.writeBytes(cookedLine);
 			// Flushes any accumulated data in the socket's output buffer and sends it to the server
 			_socket.flush();
-
 		}
 
 
-		/* Read a line from the socket and stick it in a buffer. 
-		Reads as many lines as are available. */
-		internal function readLine():String
+		/** 
+		 * Read a line from the socket and stick it in a buffer. 
+		 * Reads as many lines as are available. 
+		 */
+		protected function readLine():String
 		{
 			var readBytes:String;
 			while (_socket.bytesAvailable)
@@ -266,8 +277,10 @@ package com.oosterwijk.irc
 		}
 		
 		
-		/* Setup the nick and stuff on initial connect. 
-		If successful, set status to connected. */	
+		/**
+		 *  Setup the nick verify everyting is OK on initial connect. 
+		 * 	If successful, set status to connected. 
+		 */	
 		internal function verifyConnection(event:Event):void
 		{
 			// while we're handling the connect the regular event listener 
@@ -299,7 +312,10 @@ package com.oosterwijk.irc
 	                    else 
 	                    {
 	                        _socket.close();
-	                        throw new NickAlreadyInUseError(line);
+	                        _status = AsIrcClient.STATUS_DISCONNECTED;
+	                        this.onNickNameAlreadyInUse();
+	                        return;
+	                        // throw new NickAlreadyInUseError(line);
 	                    }
 	                }
 	                else if (code.charAt(0) == "5" || code.charAt(0) == "4") 
@@ -319,6 +335,7 @@ package com.oosterwijk.irc
 			
 
 		/* ================= IRC PROTOCOL FUNCTIONS ==========================*/
+
 	    private function handleLine(line:String):void 
 	    {
 	        this.log("attempting to handle: " + line);
@@ -409,6 +426,7 @@ package com.oosterwijk.irc
 	            target = target.substr(1);
 	
 	        // Check for CTCP requests.
+	        // TODO: is this the best way to check fo CTCP?
 	        if (command == "PRIVMSG" && line.search(":\u0001") > 0 && line.substr(line.length-1,1)  == "\u0001")
 	        {
 	            var request:String = line.substring(line.indexOf(":\u0001") + 2, line.length - 1);
@@ -424,8 +442,7 @@ package com.oosterwijk.irc
 	                this.onFinger(sourceNick, sourceLogin, sourceHostname, target);
 	            else if ( (request.split(" ").length >= 5) && request.split(" ").shift() == "DCC" ) 
 	            {
-	            	var err:Error = new Error("DCC is currently not implemented");
-	            	throw err;
+	            	this.onUnsupportedRequest("DCC is currently not implemented");
 	            }
 	            else // An unknown CTCP message - ignore it.
 	                this.onUnknown(line);
@@ -504,9 +521,6 @@ package com.oosterwijk.irc
 	     * is received from the IRC server.  We use this method to
 	     * allow the Irc Client to process various responses from the server
 	     * before then passing them on to the onServerResponse method.
-	     *  <p>
-	     * Note that this method is private and should not appear in any
-	     * of the javadoc generated documenation.
 	     * 
 	     * @param code The three-digit numerical code for the response.
 	     * @param response The full response from the IRC server.
@@ -622,9 +636,6 @@ package com.oosterwijk.irc
 	     * Called when the mode of a channel is set.  We process this in
 	     * order to call the appropriate onOp, onDeop, etc method before
 	     * finally calling the override-able onMode method.
-	     *  <p>
-	     * Note that this method is private and is not intended to appear
-	     * in the javadoc generated documentation.
 	     *
 	     * @param target The channel or nick that the mode operation applies to.
 	     * @param sourceNick The nick of the user that set the mode.
@@ -760,18 +771,6 @@ package com.oosterwijk.irc
 	    }
 	    
 	
-		/**
-		 * This method currently just traces the input line. 
-		 * Override and redirect or suppress this logging behavior as needed.
-		 * 
-		 * @param line The line to log.
-		 */
-		public   function log(line:String):void
-		{
-			if (this._verbose)
-				trace(line);
-		}
-	    
 	    /**
 	     * When you connect to a server and your nick is already in use and
 	     * this is set to true, a new nick will be automatically chosen.
@@ -1133,7 +1132,8 @@ package com.oosterwijk.irc
 	     * @param sourceHostname The hostname of the user that sent the VERSION request.
 	     * @param target The target of the VERSION request, be it our nick or a channel name.
 	     */
-	    protected function onVersion(sourceNick:String, sourceLogin:String, sourceHostname:String, target:String):void {
+	    protected function onVersion(sourceNick:String, sourceLogin:String, sourceHostname:String, target:String):void 
+	    {
 	        this.sendRawLine("NOTICE " + sourceNick + " :\u0001VERSION " + _version + "\u0001");
 	    }
 	    
@@ -1152,7 +1152,8 @@ package com.oosterwijk.irc
 	     * @param target The target of the PING request, be it our nick or a channel name.
 	     * @param pingValue The value that was supplied as an argument to the PING command.
 	     */
-	    protected function onPing(sourceNick:String, sourceLogin:String, sourceHostname:String, target:String, pingValue:String):void {
+	    protected function onPing(sourceNick:String, sourceLogin:String, sourceHostname:String, target:String, pingValue:String):void 
+	    {
 	        this.sendRawLine("NOTICE " + sourceNick + " :\u0001PING " + pingValue + "\u0001");
 	    }
 	    
@@ -1184,7 +1185,8 @@ package com.oosterwijk.irc
 	     * @param sourceHostname The hostname of the user that sent the TIME request.
 	     * @param target The target of the TIME request, be it our nick or a channel name.
 	     */
-	    protected function onTime(sourceNick:String, sourceLogin:String, sourceHostname:String, target:String):void {
+	    protected function onTime(sourceNick:String, sourceLogin:String, sourceHostname:String, target:String):void 
+	    {
 	        this.sendRawLine("NOTICE " + sourceNick + " :\u0001TIME " + new Date().toString() + "\u0001");
 	    }
 	    
@@ -1201,11 +1203,25 @@ package com.oosterwijk.irc
 	     * @param sourceHostname The hostname of the user that sent the FINGER request.
 	     * @param target The target of the FINGER request, be it our nick or a channel name.
 	     */
-	    protected function onFinger(sourceNick:String, sourceLogin:String, sourceHostname:String, target:String):void {
+	    protected function onFinger(sourceNick:String, sourceLogin:String, sourceHostname:String, target:String):void 
+	    {
 	        this.sendRawLine("NOTICE " + sourceNick + " :\u0001FINGER " + _finger + "\u0001");
 	    }
 	    
 	    
+	    
+	
+	    /**
+	     * Called when we receive a request that is currently not implemented.
+	     *  <p>
+	     * The implementation of this method just does a trace. override if you want more control.
+	     */
+	    protected function onUnsupportedRequest(error:String):void
+	    {
+	     trace(error);	
+	    }
+		/* ================= ABSTRACT OVERRIDABLE FUNCTIONS ==================*/
+	
 	    /**
 	     * This method is called whenever we receive a line from the server that
 	     * the Irc Client has not been programmed to recognise.
@@ -1215,12 +1231,10 @@ package com.oosterwijk.irc
 	     * 
 	     * @param line The raw line that was received from the server.
 	     */
-	    protected function onUnknown(line:String):void {
+	    protected function onUnknown(line:String):void 
+	    {
 	        // And then there were none :)
 	    }
-	    
-		/* ================= ABSTRACT OVERRIDABLE FUNCTIONS ==================*/
-	
 	
 	    /**
 	     * This method is called once the ircBot has successfully connected to
@@ -1253,6 +1267,14 @@ package com.oosterwijk.irc
 	     */
 	    protected   function onDisconnect():void {}
 	
+	    /**
+	     * Called when we try to connect to a server and the nick we're trying to use is already taken.
+	     *  <p>
+	     * The implementation of this method in the Irc Client abstract class
+	     * performs no actions and may be overridden as required.
+	     * 
+	     */
+	    protected function onNickNameAlreadyInUse():void  {}    
 	
 	    /**
 	     * This method is called when we receive a numeric response from the
@@ -1937,7 +1959,6 @@ package com.oosterwijk.irc
 	     * @param channel The channel that we're being invited to.
 	     */
 	    protected function onInvite(targetNick:String, sourceNick:String, sourceLogin:String, sourceHostname:String, channel:String):void  {}    
-	
 	    
 	        
 	    /**
@@ -2378,6 +2399,18 @@ package com.oosterwijk.irc
 	        }
 	    }
 	
+		/**
+		 * This method currently just traces the input line. 
+		 * Override and redirect or suppress this logging behavior as needed.
+		 * 
+		 * @param line The line to log.
+		 */
+		public   function log(line:String):void
+		{
+			if (this._verbose)
+				trace(line);
+		}
+	    
 
 	}
 }

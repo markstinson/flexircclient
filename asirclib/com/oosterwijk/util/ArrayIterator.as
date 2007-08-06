@@ -1,7 +1,6 @@
 /*
 Action Script 3/Flex IRC Client Implementation 
 Copyright (C) 2007 Leon Oosterwijk
-Based on PircBot by Paul James Mutton (http://www.jibble.org/)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

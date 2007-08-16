@@ -1,5 +1,6 @@
 Firc readme.txt
 Updated August, 2007 by Leon Oosterwijk
+http://code.google.com/p/flexircclient/
 
 Send all feedback/comments/problems to leon@isdn.net
  

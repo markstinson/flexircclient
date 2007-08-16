@@ -47,6 +47,7 @@ package com.oosterwijk.irc
 		static public var CONNECT_EVENT:String = "connectEvent";
 		static public var DISCONNECT_EVENT:String = "disconnectEvent";
 		static public var NICK_ALREADY_IN_USE_EVENT:String = "nickAlreadyInUseEvent";
+		static public var IRC_CONNECTION_ERROR_EVENT:String = "IRCConnectionErrorEvent";
 		static public var SERVER_RESPONSE_EVENT:String = "serverResponseEvent";
 		static public var PRIVATE_MESSAGE_EVENT:String = "privateMessageEvent";
 		static public var ACTION_EVENT:String = "actionEvent";
@@ -156,13 +157,26 @@ package com.oosterwijk.irc
 	    
 	    
 	    /**
-	    * Dispatched a new ServerEvent when called.
+	    * Dispatches a new ServerEvent when called.
 	    * @see AsIrcClient#onNickNAmeAlreadyInUse()
-	    * @see #NICK_ALREADY_IN_USE_EVEN
+	    * @see #NICK_ALREADY_IN_USE_EVENT
 	    */
 	    protected override function onNickNameAlreadyInUse():void
 	    {
 	    	var event:ServerEvent = new ServerEvent(FlexIrcClient.NICK_ALREADY_IN_USE_EVENT);
+	    	this.dispatchEvent(event);	    	
+	    }
+	    
+	    /**
+	    * Dispatches a new ServerEvent when called. sets the event.response property to the 
+	    * response received from the server.
+	    * @see AsIrcClient#onConnectionError()
+	    * @see #IRC_CONNECTION_ERROR_EVENT
+	    */
+	    protected override function onConnectionError(line:String):void
+	    {
+	    	var event:ServerEvent = new ServerEvent(FlexIrcClient.IRC_CONNECTION_ERROR_EVENT);
+	    	event.response = line;
 	    	this.dispatchEvent(event);	    	
 	    }
 	    

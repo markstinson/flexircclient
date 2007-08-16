@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="asdoc" default="main" basedir=".">
+	<property file="./build.properties" />
+	<target name="init" description="setup some environment">
+		<property name="asdoc.title" value="AS-IRC-Lib-documentation"/>
+		<property name="asdoc.domainextensions" value="com"/>
+		<property name="asdoc.outputfolder" value="asdoc"/>
+		<property name="dist.outputfolder" value="dist"/>
+		<property name="dist.srcfolder" value="${dist.outputfolder}/src/com"/>
+		<property name="dist.asdocfolder" value="${dist.outputfolder}/asdoc"/>
+		<property name="dist.3rdpartyfolder" value="${dist.outputfolder}/3rdparty"/>
+		<property name="dist.tarfile" value="${dist.outputfolder}/firc.tar"/>
+		
+		<property name="3rdparty.outputfolder" value="3rdparty"/>
+
+		<!-- flex sdk properties -->
+		 <property name="flex.sdk.home" value="/Applications/Adobe Flex Builder 3/sdks/2.0.1"/>
+		 <property name="FLEX_HOME" value="${flex.sdk.home}"/>
+		 <property name="flex.app.root" value="${basedir}"/>		
+		 <property name="flex.dist" value="${basedir}${file.separator}dist"/>		
+		
+		<!-- download task jar if needed -->
+		<!-- TODO: Find public location of this jar file. To skip this step place flexTasks.jar in your ant lib dir. -->
+		<property name="flexcompile.anttask.location" value="http://url.to/flexTasks.jar" />
+		<property name="flexcompile.anttask.username" value="username" />
+		<property name="flexcompile.anttask.password" value="password" />
+		<available file="${ant.library.dir}/flexTasks.jar" property="flexTasksAntTask.exists" />
+	</target>
+
+
+	<target name="main" depends="init,clean,makedocs,dist" description="full build of project"/>
+	
+	<target name="clean">
+		<delete dir="./${dist.outputfolder}" failOnError="false" includeEmptyDirs="true"/>
+		<delete dir="./${asdoc.outputfolder}" failOnError="false" includeEmptyDirs="true"/>
+		<mkdir dir="./${asdoc.outputfolder}"/>
+		<mkdir dir="./${dist.outputfolder}"/>
+		<mkdir dir="./${dist.srcfolder}"/>
+		<mkdir dir="./${dist.3rdpartyfolder}"/>
+	</target>
+
+	<target name="dist">
+		<copy todir="${dist.srcfolder}">
+			<fileset dir="com"/>
+		</copy>
+		<copy todir="${dist.asdocfolder}">
+			<fileset dir="${asdoc.outputfolder}"/>
+		</copy>
+		<copy todir="${dist.3rdpartyfolder}">
+			<fileset dir="${3rdparty.outputfolder}"/>
+		</copy>
+		<copy file="LICENSE" todir="${dist.outputfolder}"/>
+		<copy file="bin/Firc.swc" todir="${dist.outputfolder}"/>
+		<tar tarfile="${dist.tarfile}" basedir="." includes="${dist.outputfolder}/**"/>
+		<gzip zipfile="${dist.tarfile}.gz" src="${dist.tarfile}"/>		
+		<delete file="${dist.tarfile}"/>
+	</target>
+
+	<target name="makedocs">
+		<exec executable="${asdoc.exe}" failonerror="true">
+			<arg line="-doc-sources '${asdoc.domainextensions}'"/>
+			<arg line="-main-title '${asdoc.title}'" />
+			<arg line="-window-title '${asdoc.title}'" />
+			<arg line="-output ${asdoc.outputfolder}" />
+		</exec>
+	</target>
+
+	<target name="compile" depends="init,getFlexTask">
+		 <taskdef resource="flexTasks.tasks" classpath="${ant.library.dir}/flexTasks.jar" />
+		  <path id="flexcomponents.classes.filelist">
+		      <fileset dir="${flex.app.root}">
+		         <include name="com/**"/>
+		      </fileset>
+		   </path>
+		   <pathconvert 
+		      property="flexcomponents.classes.classlist" 
+		      pathsep=" " 
+		      dirsep="." 
+		      refid="flexcomponents.classes.filelist">
+		      <map from="${flex.app.root}${file.separator}" to=""/>
+		      <mapper>
+		         <chainedmapper>
+	            <globmapper from="*.as" to="*"/>
+		         </chainedmapper>
+		      </mapper>
+		</pathconvert>		
+		<compc output="${flex.dist}${file.separator}Firc.swc" include-classes="${flexcomponents.classes.classlist}" compiler.debug="false" compiler.strict="false">
+			<source-path path-element="${flex.app.root}"/>
+			<compiler.external-library-path dir="${flex.sdk.home}${file.separator}frameworks${file.separator}libs" >
+				<include name="*.swc"/>
+			</compiler.external-library-path>
+		</compc>
+	</target>
+	<target name="getFlexTask" unless="flexTasksAntTask.exists">
+		<echo message="getting flexTasks.jar ant task from repository" />
+		<get dest="${ant.library.dir}/flexTasks.jar" src="${flexcompile.anttask.location}" username="${flexcompile.anttask.username}" password="${flexcompile.anttask.password}" />
+	</target>
+
+</project>

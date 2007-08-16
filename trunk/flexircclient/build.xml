@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="asdoc" default="main" basedir=".">
+	<property file="./build.properties" />
+	<target name="init" description="setup some environment">
+		<property name="dist.outputfolder" value="dist"/>
+		<property name="dist.outputswf" value="${dist.outputfolder}/FlexIRCClient.swf"/>
+		<property name="dist.srcfolder" value="${dist.outputfolder}/src/com"/>
+		<property name="dist.tarfile" value="${dist.outputfolder}/flexircclient.tar"/>
+
+		<!-- flex sdk properties -->
+		 <property name="flex.sdk.home" value="/usr/local/flex2sdk"/>
+		 <property name="FLEX_HOME" value="${flex.sdk.home}"/>
+		 <property name="flex.app.root" value="${basedir}"/>		
+		 <property name="flex.dist" value="${basedir}${file.separator}dist"/>		
+		
+		<!-- download task jar if needed -->
+		<!-- TODO: Find public location of this jar file. To skip this step place flexTasks.jar in your ant lib dir. -->
+		<property name="flexcompile.anttask.location" value="http://url.to/flexTasks.jar" />
+		<property name="flexcompile.anttask.username" value="username" />
+		<property name="flexcompile.anttask.password" value="password" />
+		<available file="${ant.library.dir}/flexTasks.jar" property="flexTasksAntTask.exists" />
+	</target>
+
+	<target name="main" depends="init,clean,dist" description="full build of project"/>
+	
+	<target name="clean">
+		<delete dir="./${dist.outputfolder}" failOnError="false" includeEmptyDirs="true"/>
+		<mkdir dir="./${dist.outputfolder}"/>
+		<mkdir dir="./${dist.srcfolder}"/>
+	</target>
+
+	<target name="dist">
+		<copy todir="${dist.srcfolder}">
+			<fileset dir="com"/>
+		</copy>
+		<copy file="LICENSE" todir="${dist.outputfolder}"/>
+		<copy file="README.txt" todir="${dist.outputfolder}"/>
+		<copy file="bin/FlexIRCClient.swf" todir="${dist.outputfolder}"/>
+		<copy file="bin/FlexIRCClient.html" todir="${dist.outputfolder}"/>
+		<copy file="bin/history.js" todir="${dist.outputfolder}"/>
+		<copy file="bin/AC_OETags.js" todir="${dist.outputfolder}"/>
+		<tar tarfile="${dist.tarfile}" basedir="." includes="${dist.outputfolder}/**"/>
+		<gzip zipfile="${dist.tarfile}.gz" src="${dist.tarfile}"/>		
+		<delete file="${dist.tarfile}"/>
+	</target>
+
+	<target name="compile" depends="init,getFlexTask">
+		 <taskdef resource="flexTasks.tasks" classpath="${ant.library.dir}/flexTasks.jar" />
+	     <mxmlc file="${basedir}/FlexIRCClient.mxml" keep-generated-actionscript="true" output="${dist.outputswf}">
+	         <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+	         <source-path path-element="${FLEX_HOME}/frameworks"/>
+
+			 <compiler.library-path dir="${FLEX_HOME}/frameworks" append="true">
+                <include name="libs" />
+                <include name="../bundles/{locale}" />
+                <include name="/tmp/Firc.swf" />
+            </compiler.library-path>
+            	         
+	     </mxmlc>
+	</target>
+	<target name="getFlexTask" unless="flexTasksAntTask.exists">
+		<echo message="getting flexTasks.jar ant task from repository" />
+		<get dest="${ant.library.dir}/flexTasks.jar" src="${flexcompile.anttask.location}" username="${flexcompile.anttask.username}" password="${flexcompile.anttask.password}" />
+	</target>
+
+</project>

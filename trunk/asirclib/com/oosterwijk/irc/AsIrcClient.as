@@ -236,7 +236,7 @@ package com.oosterwijk.irc
 		 * 
 		 * @param line The line that will be sent to the server.
 		 */
-		protected function sendRawLine(line:String):void
+		public function sendRawLine(line:String):void
 		{
 			if (isConnected() == false)
 				return;
@@ -315,13 +315,14 @@ package com.oosterwijk.irc
 	                        _status = AsIrcClient.STATUS_DISCONNECTED;
 	                        this.onNickNameAlreadyInUse();
 	                        return;
-	                        // throw new NickAlreadyInUseError(line);
 	                    }
 	                }
 	                else if (code.charAt(0) == "5" || code.charAt(0) == "4") 
 	                {
-	                	this._socket.close();
-	                    throw new IrcError("Could not log into the IRC server: " + line);
+	                	_socket.close();
+                        _status = AsIrcClient.STATUS_DISCONNECTED;
+                        this.onConnectionError("Could not log into the IRC server: " + line);
+                        return;
 	                }
 	            }
 	            this.setNick(nick);
@@ -1275,6 +1276,17 @@ package com.oosterwijk.irc
 	     * 
 	     */
 	    protected function onNickNameAlreadyInUse():void  {}    
+
+	    /**
+	     * Called when we try to connect to a server and the connection fails.
+	     *  <p>
+	     * The implementation of this method in the Irc Client abstract class
+	     * performs no actions and may be overridden as required.
+	     * 
+	     * @param line the error message reported by the irc server.
+	     * 
+	     */
+	    protected function onConnectionError(line:String):void  {}    
 	
 	    /**
 	     * This method is called when we receive a numeric response from the

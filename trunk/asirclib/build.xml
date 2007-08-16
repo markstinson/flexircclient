@@ -50,6 +50,7 @@
 			<fileset dir="${3rdparty.outputfolder}"/>
 		</copy>
 		<copy file="LICENSE" todir="${dist.outputfolder}"/>
+		<copy file="README.txt" todir="${dist.outputfolder}"/>
 		<copy file="bin/Firc.swc" todir="${dist.outputfolder}"/>
 		<tar tarfile="${dist.tarfile}" basedir="." includes="${dist.outputfolder}/**"/>
 		<gzip zipfile="${dist.tarfile}.gz" src="${dist.tarfile}"/>		

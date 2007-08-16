@@ -404,7 +404,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	   	    	{
 	   	    		if (event.sender != null)
 			   	    	this.writeLineToChannelLog("User: " + event.sender + " sets topic to: " + event.message);
-		   	    	this.title = this.channel + " - " + event.message;
+			   	    else
+			   	    	this.writeLineToChannelLog("Topic: " + event.message);
+		   	    	this.title = this.channel + " - " + event.message.substr(0,50);
 	   	    	}
 		    }
 	

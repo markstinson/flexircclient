@@ -27,7 +27,7 @@ To try out the code you have 2 options:
 
 1) Create a new Flex project and copy the mxml,css and com.oosterwijk.irc.* into it
    Make sure also to reference either the Firc.swc of the Firc project
-2) checkout the Firc and Flex Irc Client projects from subversion.
+2) checkout the Firc and Flex IRC Client projects from subversion.
 
 PROBLEMS USING FLEX IRC CLIENT
 =======================

@@ -1,5 +1,5 @@
 #labels Phase-Support
-# What to do if you cannot connect to your IRC server of choice because of a "Security sandbox violation"
+#What to do if you cannot connect to your IRC server of choice because of a "Security sandbox violation"
 
 = Introduction =
 

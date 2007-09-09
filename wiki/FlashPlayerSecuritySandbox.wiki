@@ -1,5 +1,5 @@
 #labels Phase-Support
-#What to do if you cannot connect to your IRC server of choice because of a "Security sandbox violation"
+#Security sandbox violation error explanation.
 
 = Introduction =
 
@@ -20,6 +20,7 @@ Adobe has some resources on Flash Security restrictions:
 * [http://kb.adobe.com/selfservice/viewContent.do?externalId=tn_16520&sliceId=2]
 
 * [http://kb.adobe.com/selfservice/viewContent.do?externalId=tn_14213&sliceId=1]
+
 
 
 
